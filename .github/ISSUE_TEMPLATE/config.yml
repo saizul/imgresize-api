@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issue
+    url: https://github.com/saizul/imgresize-api/security/advisories/new
+    about: Please report security problems (SSRF, signature bypass, decoder crashes) privately.
+  - name: Questions and ideas
+    url: https://github.com/saizul/imgresize-api/discussions
+    about: Ask how to deploy or integrate imgresize-api.

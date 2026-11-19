@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imgresize-api"
+dynamic = ["version"]
+description = "Self-hosted image resize and convert microservice (a tiny imgproxy) on Pillow: resize, crop and convert to WebP, AVIF, JPEG or PNG with HMAC-signed URLs, an SSRF-safe fetcher, decompression-bomb limits, metadata stripping and a disk cache."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Saizul Amin" }]
+keywords = ["image-resize", "image-processing", "thumbnails", "imgproxy", "pillow", "webp", "avif", "ssrf", "self-hosted", "starlette"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Typing :: Typed",
+]
+dependencies = [
+    "starlette>=0.37,<2",
+    "httpx>=0.27,<1",
+    "uvicorn>=0.29,<1",
+    "Pillow>=10.4",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+avif = ["pillow-avif-plugin>=1.4"]  # only needed with Pillow < 11.3, which has no built-in AVIF
+dev = ["pytest>=7.4", "ruff>=0.4"]
+
+[project.urls]
+Homepage = "https://github.com/saizul/imgresize-api"
+Issues = "https://github.com/saizul/imgresize-api/issues"
+Changelog = "https://github.com/saizul/imgresize-api/blob/main/CHANGELOG.md"
+
+[project.scripts]
+imgresize = "imgresize_api.cli:main"
+imgresize-api = "imgresize_api.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "imgresize_api._version.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+imgresize_api = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = [
+    # Starlette >= 1.x prefers httpx2 for its TestClient; httpx still works.
+    "ignore:Using `httpx` with `starlette.testclient`",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src", "tests"]
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "C4", "SIM", "RUF"]
+ignore = ["SIM108", "RUF022", "RUF001"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]

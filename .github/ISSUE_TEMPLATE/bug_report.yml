@@ -1,0 +1,41 @@
+name: Bug report
+description: imgresize-api crashed, rejected a valid image or produced a wrong result
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste your IMGRESIZE_SECRET or private image URLs.** Replace them with placeholders.
+        Security problems (SSRF bypass, signature bypass, crash with a crafted image) go to a
+        private report instead: see SECURITY.md.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: The request (without the signature), the status code, the error body and relevant log lines.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: image
+    attributes:
+      label: Source image
+      description: Format, dimensions and, if you can share it, the file itself.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "Output of: imgresize --version (or the image tag)"
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: "Docker image on Debian 12 behind nginx / pip install on Python 3.12, Pillow 11.3"

@@ -1,0 +1,29 @@
+# docker compose -f examples/docker-compose.yml up -d
+# Put the secret in examples/.env (never commit it):
+#   IMGRESIZE_SECRET=<output of: openssl rand -hex 32>
+services:
+  imgresize:
+    image: ghcr.io/saizul/imgresize-api:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"            # put a CDN or caching reverse proxy in front in production
+    environment:
+      IMGRESIZE_SECRET: ${IMGRESIZE_SECRET:?set it in .env}
+      IMGRESIZE_ALLOWED_SOURCES: "images.example.com, *.cdn.example.net"
+      IMGRESIZE_MAX_DIMENSION: "3000"
+      IMGRESIZE_CACHE_TTL: "604800"            # 7 days
+      IMGRESIZE_CACHE_MAX_BYTES: "2147483648"  # 2 GiB
+    volumes:
+      - imgresize-cache:/cache
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+volumes:
+  imgresize-cache:
