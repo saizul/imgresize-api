@@ -25,7 +25,7 @@ try:  # Pillow >= 11.2 has native AVIF; older versions can use pillow-avif-plugi
 except ImportError:  # pragma: no cover - depends on the installed wheels
     pass
 
-FITS = ("cover", "contain", "fill")
+FITS = ("cover", "contain", "fill", "pad")
 OUTPUT_FORMATS = ("jpeg", "png", "webp", "avif")
 FORMAT_ALIASES = {"jpg": "jpeg", "jpeg": "jpeg", "png": "png", "webp": "webp", "avif": "avif", "auto": "auto"}
 PIL_INPUT_NAMES = {
@@ -212,6 +212,27 @@ def _target_size(src_w: int, src_h: int, params: Params, max_dim: int) -> tuple[
     return out_w, out_h, full
 
 
+def _pad(image: Image.Image, width: int, height: int, params: Params, max_dim: int) -> Image.Image:
+    """Place ``image`` on a canvas of exactly w x h (times dpr), positioned by ``gravity``.
+
+    Images with transparency get a transparent canvas (flattened onto ``bg`` for JPEG later);
+    opaque images get a ``bg`` canvas.
+    """
+    canvas_w = min(round(width * params.dpr), max_dim)
+    canvas_h = min(round(height * params.dpr), max_dim)
+    if image.size == (canvas_w, canvas_h):
+        return image
+    if _has_alpha(image):
+        image = image.convert("RGBA")
+        canvas = Image.new("RGBA", (canvas_w, canvas_h), (*params.background, 0))
+    else:
+        image = image.convert("RGB")
+        canvas = Image.new("RGB", (canvas_w, canvas_h), params.background)
+    gx, gy = GRAVITY[params.gravity]
+    canvas.paste(image, (round((canvas_w - image.width) * gx), round((canvas_h - image.height) * gy)))
+    return canvas
+
+
 def _has_alpha(image: Image.Image) -> bool:
     return image.mode in ("RGBA", "LA", "PA") or (image.mode == "P" and "transparency" in image.info)
 
@@ -300,6 +321,8 @@ def _process(
         resized = oriented.resize((out_w, out_h), Image.Resampling.LANCZOS, box=box, reducing_gap=3.0)
     else:
         resized = oriented.copy()
+    if params.fit == "pad" and params.width and params.height:
+        resized = _pad(resized, params.width, params.height, params, settings.max_dimension)
 
     fmt = _output_format(params.format, negotiated, source_format, _has_alpha(resized), settings)
     if fmt == "jpeg" and _has_alpha(resized):

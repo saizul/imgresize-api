@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `fit=pad`: contain the image, then place it on a canvas of exactly `w`x`h` (times `dpr`),
+  positioned by `gravity`. Opaque images are padded with `bg`; images with transparency get
+  transparent padding, which is flattened onto `bg` for JPEG output.
+
 ## [0.1.0] - 2026-11-19
 
 ### Added
