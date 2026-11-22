@@ -30,17 +30,15 @@ Each of these is self-contained and touches one or two files plus tests.
    Remember the cache key and `KNOWN_PARAMS`. (`processing.py`, `app.py`, tests)
 2. **`rotate` and `flip`.** `rotate=90|180|270` and `flip=h|v`, applied after the EXIF
    orientation fix. (`processing.py`, tests)
-3. **`fit=pad`.** Contain the image, then paste it centred on a `bg` canvas of exactly
-   `w`x`h`. (`processing.py`, tests)
-4. **Signer snippets.** `examples/sign.php`, `examples/sign.go` or `examples/sign.rb` that
+3. **Signer snippets.** `examples/sign.php`, `examples/sign.go` or `examples/sign.rb` that
    reproduce the README test vector, with a comment showing the expected output.
-5. **`/metrics` endpoint.** Prometheus text format: request count by status, cache hits
+4. **`/metrics` endpoint.** Prometheus text format: request count by status, cache hits
    and misses, processing time histogram, without a new dependency. (`app.py`, tests)
-6. **Presets.** `IMGRESIZE_PRESETS="thumb:w=200,h=200,fit=cover;hero:w=1600,format=auto"`
+5. **Presets.** `IMGRESIZE_PRESETS="thumb:w=200,h=200,fit=cover;hero:w=1600,format=auto"`
    and `preset=thumb` in the query. (`settings.py`, `app.py`, tests)
-7. **`Retry-After` on 503.** When the concurrency limit is saturated for more than N
+6. **`Retry-After` on 503.** When the concurrency limit is saturated for more than N
    seconds, answer `503` with `Retry-After` instead of queueing forever. (`app.py`, tests)
-8. **Cache statistics in `/healthz`.** Number of entries and bytes, computed at most once
+7. **Cache statistics in `/healthz`.** Number of entries and bytes, computed at most once
    a minute. (`cache.py`, `app.py`, tests)
 
 ## Development setup

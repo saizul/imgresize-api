@@ -40,7 +40,7 @@ headers.
 
 ## Features
 
-- **Resize and crop.** `w`, `h`, `fit=contain|cover|fill`, `gravity`, `dpr` for retina
+- **Resize and crop.** `w`, `h`, `fit=contain|cover|fill|pad`, `gravity`, `dpr` for retina
   screens, and `enlarge` to allow upscaling.
 - **Convert.** WebP, AVIF, JPEG (progressive) and PNG, with quality `q`. `format=auto`
   picks AVIF or WebP from the browser's `Accept` header.
@@ -104,13 +104,13 @@ Pillow 11.3 and newer can write AVIF out of the box. With an older Pillow, insta
 | --- | --- | --- |
 | `url` | the source image, `http(s)://...` (URL-encode it) | required |
 | `w`, `h` | output width / height in CSS pixels, `1`-`IMGRESIZE_MAX_DIMENSION` | source size |
-| `fit` | `contain` (fit inside, keep aspect), `cover` (fill and crop), `fill` (stretch) | `contain` |
-| `gravity` | crop anchor for `cover`: `center`, `north`, `south`, `east`, `west`, `northeast`, `northwest`, `southeast`, `southwest` | `center` |
+| `fit` | `contain` (fit inside, keep aspect), `cover` (fill and crop), `fill` (stretch), `pad` (contain, then pad to exactly `w`x`h`) | `contain` |
+| `gravity` | crop anchor for `cover`, image position for `pad`: `center`, `north`, `south`, `east`, `west`, `northeast`, `northwest`, `southeast`, `southwest` | `center` |
 | `enlarge` | `1` to allow upscaling beyond the source size | `0` |
 | `dpr` | device pixel ratio `1`-`4`, multiplies `w` and `h` | `1` |
 | `format` (or `fm`) | `webp`, `avif`, `jpeg` (`jpg`), `png`, `auto` | source format family |
 | `q` | quality `1`-`100` (JPEG, WebP, AVIF) | `IMGRESIZE_DEFAULT_QUALITY` (82) |
-| `bg` | background hex colour for transparent images saved as JPEG | `ffffff` |
+| `bg` | background hex colour for transparent images saved as JPEG and for `pad` | `ffffff` |
 | `expires` | Unix time after which a signed URL stops working | none |
 | `s` | signature (required when `IMGRESIZE_SECRET` is set) | |
 
@@ -311,7 +311,7 @@ to remove it too.
 Ideas, many of them marked **good first issue**:
 
 - [ ] `blur`, `sharpen`, `rotate` and `flip` parameters
-- [ ] `fit=pad` (contain with a background colour to an exact size)
+- [x] `fit=pad` (contain with a background colour to an exact size)
 - [ ] Smart crop (`gravity=smart`, based on entropy)
 - [ ] Prometheus `/metrics` (requests, cache hit ratio, processing time)
 - [ ] Presets (`preset=thumb` defined in an environment variable)

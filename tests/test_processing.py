@@ -288,3 +288,41 @@ def test_disallowed_and_corrupt_input():
 def test_input_format_restriction():
     with pytest.raises(ImageError):
         run(make_image(fmt="PNG"), replace(SETTINGS, input_formats=("jpeg",)))
+
+
+def test_pad_letterboxes_to_exact_size():
+    result, image = run(make_image((400, 200), fmt="PNG"), w=100, h=100, fit="pad", bg="00ff00")
+    assert image.size == (100, 100) and (result.width, result.height) == (100, 100)
+    rgb = image.convert("RGB")
+    assert rgb.getpixel((50, 5)) == (0, 255, 0)  # padding above
+    assert rgb.getpixel((50, 95)) == (0, 255, 0)  # padding below
+    assert rgb.getpixel((90, 50)) == (200, 40, 40)  # the image itself
+
+
+def test_pad_gravity_and_no_enlarge():
+    # 100x50 is not enlarged into 400x400, but the canvas is still exactly 400x400.
+    _, image = run(make_image((100, 50), fmt="PNG"), w=400, h=400, fit="pad", gravity="northwest", bg="000000")
+    rgb = image.convert("RGB")
+    assert image.size == (400, 400)
+    assert rgb.getpixel((99, 49)) == (200, 40, 40)
+    assert rgb.getpixel((150, 25)) == (0, 0, 0) and rgb.getpixel((50, 100)) == (0, 0, 0)
+
+
+def test_pad_with_dpr_and_jpeg():
+    _, image = run(make_image((300, 100)), w=60, h=60, fit="pad", dpr=2)
+    assert image.format == "JPEG" and image.size == (120, 120)
+    r, g, b = image.getpixel((60, 2))
+    assert min(r, g, b) > 240  # default white background
+
+
+def test_pad_keeps_transparency_for_png_and_flattens_for_jpeg():
+    source = make_image((200, 100), fmt="PNG", mode="RGBA", color=(10, 20, 30, 255))
+    _, png = run(source, w=50, h=50, fit="pad")
+    assert png.mode == "RGBA" and png.getpixel((25, 2))[3] == 0
+    _, jpeg = run(source, w=50, h=50, fit="pad", format="jpeg", bg="ff0000")
+    r, g, b = jpeg.getpixel((25, 2))
+    assert r > 240 and g < 15 and b < 15
+
+
+def test_pad_with_one_dimension_behaves_like_contain():
+    assert run(make_image((400, 200)), w=100, fit="pad")[1].size == (100, 50)
